@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Student Management System</h1>
+
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- Add Student Form -->
+        <div class="form-section">
+            <h2 style="margin-bottom: 20px; color: #333;">Add New Student</h2>
+            <form id="studentForm">
+                <div class="form-group">
+                    <div>
+                        <label for="studentId">Student ID:</label>
+                        <input type="text" id="studentId" placeholder="e.g., STU001" required>
+                    </div>
+                    <div>
+                        <label for="studentName">Full Name:</label>
+                        <input type="text" id="studentName" placeholder="Enter student name" required>
+                    </div>
+                    <div>
+                        <label for="studentEmail">Email:</label>
+                        <input type="email" id="studentEmail" placeholder="Enter email address" required>
+                    </div>
+                    <div>
+                        <label for="studentPhone">Phone:</label>
+                        <input type="tel" id="studentPhone" placeholder="Enter phone number" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        <label for="studentClass">Class:</label>
+                        <select id="studentClass" required>
+                            <option value="">Select Class</option>
+                            <option value="10th">10th Grade</option>
+                            <option value="11th">11th Grade</option>
+                            <option value="12th">12th Grade</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="studentSection">Section:</label>
+                        <input type="text" id="studentSection" placeholder="e.g., A, B, C" required>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit">Add Student</button>
+                    <button type="reset">Clear Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Students Table -->
+        <div class="table-section">
+            <h2 style="margin-bottom: 20px; color: #333;">Student List</h2>
+            <table id="studentTable">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <tr>
+                        <td colspan="7" class="no-data">No students added yet. Add a student to get started!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Load students from localStorage
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+
+        // Display students on page load
+        displayStudents();
+
+        // Form submission
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const student = {
+                id: document.getElementById('studentId').value,
+                name: document.getElementById('studentName').value,
+                email: document.getElementById('studentEmail').value,
+                phone: document.getElementById('studentPhone').value,
+                class: document.getElementById('studentClass').value,
+                section: document.getElementById('studentSection').value
+            };
+
+            // Check if student ID already exists
+            if (students.some(s => s.id === student.id)) {
+                alert('Student ID already exists!');
+                return;
+            }
+
+            students.push(student);
+            localStorage.setItem('students', JSON.stringify(students));
+            displayStudents();
+            showSuccessMessage('Student added successfully!');
+            this.reset();
+        });
+
+        // Display all students
+        function displayStudents() {
+            const tableBody = document.getElementById('studentTableBody');
+            
+            if (students.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="no-data">No students added yet. Add a student to get started!</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = students.map((student, index) => `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.phone}</td>
+                    <td>${student.class}</td>
+                    <td>${student.section}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteStudent(${index})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Delete student
+        function deleteStudent(index) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                students.splice(index, 1);
+                localStorage.setItem('students', JSON.stringify(students));
+                displayStudents();
+                showSuccessMessage('Student deleted successfully!');
+            }
+        }
+
+        // Show success message
+        function showSuccessMessage(message) {
+            const messageDiv = document.getElementById('successMessage');
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
