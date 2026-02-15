@@ -4,6 +4,12 @@ let students = JSON.parse(localStorage.getItem('students')) || [];
 // Display students on page load
 displayStudents();
 
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    filterStudents(searchTerm);
+});
+
 // Form submission
 document.getElementById('studentForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -72,4 +78,43 @@ function showSuccessMessage(message) {
     setTimeout(() => {
         messageDiv.style.display = 'none';
     }, 3000);
+}
+
+// Filter students by search term
+function filterStudents(searchTerm) {
+    const tableBody = document.getElementById('studentTableBody');
+    
+    if (students.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="no-data">No students added yet. Add a student to get started!</td></tr>';
+        return;
+    }
+
+    const filteredStudents = students.filter(student => 
+        student.id.toLowerCase().includes(searchTerm) ||
+        student.name.toLowerCase().includes(searchTerm) ||
+        student.email.toLowerCase().includes(searchTerm) ||
+        student.phone.toLowerCase().includes(searchTerm)
+    );
+
+    if (filteredStudents.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="no-data">No students found matching your search.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = filteredStudents.map((student, index) => {
+        const actualIndex = students.indexOf(student);
+        return `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.email}</td>
+                <td>${student.phone}</td>
+                <td>${student.class}</td>
+                <td>${student.section}</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteStudent(${actualIndex})">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
